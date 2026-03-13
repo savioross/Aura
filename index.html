@@ -3,250 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AURA | Modern Essentials</title>
+    <title>AURA | Professional Commerce</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         
+        :root {
+            --apple-blue: #0066cc;
+            --apple-gray: #86868b;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fbfbfd;
             color: #1d1d1f;
-            -webkit-font-smoothing: antialiased;
         }
 
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: saturate(180%) blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
 
-        .product-card img {
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        .cart-drawer {
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
         }
 
-        .product-card:hover img {
-            transform: scale(1.05);
+        .product-image-container:hover img {
+            transform: scale(1.03);
         }
 
-        .cart-sidebar {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        /* Loading indicator for chatbot */
+        .dot { height: 6px; width: 6px; background: #86868b; border-radius: 50%; display: inline-block; animation: wave 1.3s infinite; }
+        .dot:nth-child(2) { animation-delay: -1.1s; }
+        .dot:nth-child(3) { animation-delay: -0.9s; }
+        @keyframes wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        /* Animation for Add to Cart */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d1d1d6;
-            border-radius: 10px;
-        }
-
-        .typing-dot {
-            animation: typing 1.4s infinite;
-        }
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-4px); }
-        }
+        .btn-pop { animation: pop 0.2s ease-out; }
     </style>
 </head>
-<body class="overflow-x-hidden">
+<body class="antialiased">
 
-    <!-- Navigation -->
-    <nav class="glass-nav fixed top-0 w-full z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="filterCategory('all')">
-                    <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-lg italic">A</span>
-                    </div>
-                    <span class="font-bold text-xl tracking-tight">AURA</span>
+    <!-- Navbar -->
+    <nav class="glass fixed top-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <a href="#" onclick="filterBy('all')" class="text-xl font-bold tracking-tighter flex items-center gap-2">
+                    <i class="fa-brands fa-apple text-2xl"></i> AURA
+                </a>
+                <div class="hidden md:flex gap-6 text-sm font-medium">
+                    <button onclick="filterBy('men')" class="hover:text-blue-600 transition-colors">Men</button>
+                    <button onclick="filterBy('women')" class="hover:text-blue-600 transition-colors">Women</button>
+                    <button onclick="filterBy('accessories')" class="hover:text-blue-600 transition-colors">Accessories</button>
                 </div>
-
-                <div class="hidden md:flex space-x-10 text-sm font-medium">
-                    <button onclick="filterCategory('all')" class="nav-link hover:text-blue-600 transition-colors">All</button>
-                    <button onclick="filterCategory('men')" class="nav-link hover:text-blue-600 transition-colors">Men</button>
-                    <button onclick="filterCategory('women')" class="nav-link hover:text-blue-600 transition-colors">Women</button>
-                    <button onclick="filterCategory('accessories')" class="nav-link hover:text-blue-600 transition-colors">Accessories</button>
-                </div>
-
-                <div class="flex items-center space-x-5">
-                    <button class="text-gray-600 hover:text-black transition-colors">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                    <button onclick="toggleCart(true)" class="relative text-gray-600 hover:text-black transition-colors">
-                        <i class="fa-solid fa-bag-shopping text-xl"></i>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
-                    </button>
-                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <button onclick="toggleCart()" class="relative group p-2">
+                    <i class="fa-solid fa-bag-shopping text-xl group-hover:text-blue-600 transition-colors"></i>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="pt-32 pb-16 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <h1 id="category-title" class="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">A New Era of Style.</h1>
-            <p class="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto">Engineered for comfort. Designed for the bold. Explore the curated collection.</p>
-        </div>
-    </header>
+    <!-- Main Storefront -->
+    <main id="store-view" class="pt-24 pb-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <header class="mb-12">
+                <h1 id="page-title" class="text-4xl md:text-5xl font-bold mb-4">Latest Arrivals.</h1>
+                <p class="text-gray-500 text-lg">Sophisticated design for modern living.</p>
+            </header>
 
-    <!-- Product Grid -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-            <!-- Products injected by JS -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+                <!-- Products dynamically rendered -->
+            </div>
         </div>
     </main>
 
-    <!-- Cart Sidebar -->
-    <div id="cart-overlay" class="fixed inset-0 bg-black/40 z-[60] hidden opacity-0 transition-opacity duration-300" onclick="toggleCart(false)"></div>
-    <div id="cart-sidebar" class="fixed top-0 right-0 w-full sm:w-96 h-full bg-white z-[70] translate-x-full cart-sidebar shadow-2xl flex flex-col">
-        <div class="p-6 flex justify-between items-center border-b">
-            <h2 class="text-xl font-bold">Your Bag</h2>
-            <button onclick="toggleCart(false)" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <i class="fa-solid fa-xmark text-xl"></i>
+    <!-- Checkout View (Hidden by default) -->
+    <main id="checkout-view" class="pt-24 pb-20 px-6 hidden min-h-screen bg-white">
+        <div class="max-w-5xl mx-auto">
+            <button onclick="hideCheckout()" class="mb-8 text-blue-600 font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Continue Shopping
             </button>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Checkout Form -->
+                <div class="lg:col-span-2 space-y-10">
+                    <section>
+                        <h2 class="text-2xl font-bold mb-6">Where should we send your order?</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" placeholder="First Name" class="p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-transparent">
+                            <input type="text" placeholder="Last Name" class="p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-transparent">
+                            <input type="email" placeholder="Email Address" class="md:col-span-2 p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-transparent">
+                            <input type="text" placeholder="Street Address" class="md:col-span-2 p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-transparent">
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-bold mb-6">Payment</h2>
+                        <div class="space-y-4">
+                            <div class="p-4 border-2 border-black rounded-xl flex justify-between items-center cursor-pointer">
+                                <div class="flex items-center gap-4"><i class="fa-brands fa-apple-pay text-3xl"></i> <span class="font-bold">Apple Pay</span></div>
+                                <div class="w-5 h-5 rounded-full border-4 border-black"></div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-xl flex justify-between items-center bg-gray-50 opacity-60">
+                                <div class="flex items-center gap-4"><i class="fa-solid fa-credit-card text-xl text-gray-400"></i> <span class="font-medium">Credit Card</span></div>
+                            </div>
+                        </div>
+                        <button onclick="confirmOrder()" class="w-full mt-8 bg-black text-white py-5 rounded-2xl font-bold text-lg hover:bg-zinc-800 transition-all">
+                            Pay with Apple Pay
+                        </button>
+                    </section>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="bg-gray-50 p-8 rounded-3xl h-fit sticky top-24">
+                    <h3 class="text-xl font-bold mb-6">Summary</h3>
+                    <div id="summary-items" class="space-y-4 mb-6">
+                        <!-- Summary injected here -->
+                    </div>
+                    <div class="border-t pt-4 space-y-3">
+                        <div class="flex justify-between text-gray-500"><span>Subtotal</span><span id="sum-subtotal">$0.00</span></div>
+                        <div class="flex justify-between text-gray-500"><span>Shipping</span><span class="text-green-600 font-medium">Free</span></div>
+                        <div class="flex justify-between text-gray-500"><span>Estimated Tax</span><span id="sum-tax">$0.00</span></div>
+                        <div class="flex justify-between text-2xl font-bold pt-4"><span>Total</span><span id="sum-total">$0.00</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Shopping Bag Drawer -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/30 z-[60] hidden transition-opacity" onclick="toggleCart()"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 w-full md:w-[450px] h-full bg-white z-[70] translate-x-full cart-drawer shadow-2xl flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center">
+            <h2 class="text-2xl font-bold tracking-tight">Your Bag</h2>
+            <button onclick="toggleCart()" class="text-2xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
         
-        <div id="cart-items" class="flex-grow overflow-y-auto p-6 space-y-6">
-            <!-- Cart items injected here -->
-            <div id="empty-cart" class="text-center py-20">
-                <i class="fa-solid fa-bag-shopping text-5xl text-gray-200 mb-4"></i>
-                <p class="text-gray-500">Your bag is empty.</p>
-            </div>
+        <div id="cart-content" class="flex-grow overflow-y-auto p-6 space-y-8">
+            <!-- Items injected here -->
         </div>
 
-        <div class="p-6 border-t bg-gray-50">
-            <div class="flex justify-between items-center mb-4">
-                <span class="text-gray-600">Subtotal</span>
-                <span id="cart-total" class="font-bold text-xl">$0.00</span>
+        <div class="p-6 bg-gray-50 border-t">
+            <div class="flex justify-between text-xl font-bold mb-6">
+                <span>Total</span>
+                <span id="cart-total-display">$0.00</span>
             </div>
-            <button onclick="showCheckout()" class="w-full bg-black text-white py-4 rounded-xl font-semibold hover:bg-zinc-800 transition-all active:scale-[0.98]">
-                Review and Checkout
+            <button onclick="showCheckout()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all">
+                Check Out
             </button>
         </div>
     </div>
 
-    <!-- Checkout Modal -->
-    <div id="checkout-modal" class="fixed inset-0 bg-white z-[80] hidden overflow-y-auto">
-        <div class="max-w-4xl mx-auto px-6 py-12">
-            <div class="flex justify-between items-center mb-12">
-                <button onclick="closeCheckout()" class="text-blue-600 font-medium hover:underline">
-                    <i class="fa-solid fa-chevron-left mr-2"></i> Back to store
-                </button>
-                <span class="text-2xl font-bold tracking-tight">Checkout</span>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                <!-- Payment Form -->
-                <div>
-                    <h3 class="text-xl font-bold mb-6">Payment Method</h3>
-                    <div class="space-y-4">
-                        <div class="border-2 border-black p-4 rounded-xl flex items-center justify-between cursor-pointer">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-brands fa-apple-pay text-4xl"></i>
-                                <span class="font-medium">Apple Pay</span>
-                            </div>
-                            <div class="w-5 h-5 border-4 border-black rounded-full"></div>
-                        </div>
-                        <div class="border border-gray-200 p-4 rounded-xl flex items-center justify-between opacity-60">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-credit-card text-2xl"></i>
-                                <span class="font-medium">Credit or Debit Card</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-10">
-                        <h3 class="text-xl font-bold mb-6">Shipping Details</h3>
-                        <div class="space-y-4">
-                            <input type="text" placeholder="Full Name" class="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-black outline-none">
-                            <input type="email" placeholder="Email Address" class="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-black outline-none">
-                            <input type="text" placeholder="Address line 1" class="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-black outline-none">
-                        </div>
-                    </div>
-
-                    <button onclick="processPayment()" class="w-full mt-10 bg-black text-white py-5 rounded-2xl font-bold text-lg hover:shadow-xl transition-all">
-                        Complete Payment
-                    </button>
-                </div>
-
-                <!-- Summary -->
-                <div class="bg-gray-50 p-8 rounded-3xl h-fit">
-                    <h3 class="text-xl font-bold mb-6">Order Summary</h3>
-                    <div id="checkout-list" class="space-y-4 mb-6">
-                        <!-- Summary items -->
-                    </div>
-                    <div class="border-t pt-4 space-y-2">
-                        <div class="flex justify-between text-gray-500">
-                            <span>Shipping</span>
-                            <span class="text-green-600 font-medium">Free</span>
-                        </div>
-                        <div class="flex justify-between text-xl font-bold pt-2">
-                            <span>Total</span>
-                            <span id="final-price">$0.00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chatbot -->
-    <div id="chat-container" class="fixed bottom-6 right-6 z-[100]">
-        <button onclick="toggleChat()" id="chat-toggle" class="w-14 h-14 bg-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95">
-            <i class="fa-solid fa-comment-dots text-2xl"></i>
+    <!-- Chatbot Assistant -->
+    <div id="chatbot" class="fixed bottom-6 right-6 z-[100]">
+        <button onclick="toggleChat()" class="w-14 h-14 bg-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform">
+            <i class="fa-solid fa-comment text-xl"></i>
         </button>
 
-        <div id="chat-window" class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-gray-100 hidden flex-col overflow-hidden max-h-[500px]">
-            <div class="bg-black p-4 text-white flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span class="font-bold">Aura Assistant</span>
-                </div>
-                <button onclick="toggleChat()"><i class="fa-solid fa-minus"></i></button>
+        <div id="chat-win" class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border hidden flex-col overflow-hidden">
+            <div class="bg-black text-white p-4 flex justify-between items-center">
+                <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-circle text-[8px] text-green-400"></i> AURA Assistant</span>
+                <button onclick="toggleChat()"><i class="fa-solid fa-chevron-down"></i></button>
             </div>
-            
-            <div id="chat-messages" class="flex-grow p-4 overflow-y-auto bg-gray-50 space-y-4 min-h-[300px]">
-                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] text-sm">
-                    Hello! Welcome to AURA. How can I help you with your wardrobe today?
+            <div id="chat-msgs" class="h-80 overflow-y-auto p-4 bg-gray-50 space-y-4 text-sm">
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] border border-gray-100">
+                    Hello! How can I help with your order or finding a specific item?
                 </div>
             </div>
-
-            <div class="p-4 bg-white border-t flex gap-2">
-                <input type="text" id="chat-input" placeholder="Ask about shipping, sizes..." class="flex-grow p-2 bg-gray-100 rounded-xl text-sm outline-none focus:ring-1 focus:ring-black" onkeypress="handleChatEnter(event)">
-                <button onclick="sendMessage()" class="bg-black text-white p-2 rounded-xl w-10 h-10"><i class="fa-solid fa-paper-plane"></i></button>
+            <div class="p-4 border-t flex gap-2 bg-white">
+                <input type="text" id="chat-input" placeholder="Type your question..." class="flex-grow p-2 bg-gray-50 rounded-lg outline-none focus:ring-1 focus:ring-black" onkeypress="if(event.key==='Enter') sendChat()">
+                <button onclick="sendChat()" class="bg-black text-white w-10 h-10 rounded-lg"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- Success Feedback -->
-    <div id="success-toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-green-600 text-white px-8 py-3 rounded-full font-bold shadow-2xl z-[200] opacity-0 pointer-events-none transition-all duration-500">
-        Order Completed Successfully!
+    <!-- Feedback Toast -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full text-sm font-bold shadow-2xl z-[200] opacity-0 transition-all pointer-events-none">
+        Added to bag
     </div>
 
     <script>
-        // --- Data Layer ---
+        // --- 1. Infrastructure Data ---
         const products = [
-            { id: 1, name: "Premium Cotton Tee", price: 45, category: "men", img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80" },
-            { id: 2, name: "Linen Summer Dress", price: 120, category: "women", img: "https://images.unsplash.com/photo-1572804013307-f9a85b101bb1?auto=format&fit=crop&w=800&q=80" },
-            { id: 3, name: "Oversized Wool Coat", price: 280, category: "women", img: "https://images.unsplash.com/photo-1539533377285-341d10afbc01?auto=format&fit=crop&w=800&q=80" },
-            { id: 4, name: "Slim Fit Chinos", price: 85, category: "men", img: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=800&q=80" },
-            { id: 5, name: "Technical Raincoat", price: 195, category: "men", img: "https://images.unsplash.com/photo-1544923246-77307dd654ca?auto=format&fit=crop&w=800&q=80" },
-            { id: 6, name: "Silk Midi Skirt", price: 110, category: "women", img: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80" },
-            { id: 7, name: "Leather Chelsea Boots", price: 210, category: "accessories", img: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?auto=format&fit=crop&w=800&q=80" },
-            { id: 8, name: "Minimalist Watch", price: 150, category: "accessories", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80" }
+            { id: 1, name: "Merino Wool Crewneck", price: 129, category: "men", img: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80" },
+            { id: 2, name: "Technical Trench Coat", price: 349, category: "men", img: "https://images.unsplash.com/photo-1544923246-77307dd654ca?auto=format&fit=crop&w=800&q=80" },
+            { id: 3, name: "Silk Midi Dress", price: 210, category: "women", img: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80" },
+            { id: 4, name: "Cashmere Cardigan", price: 185, category: "women", img: "https://images.unsplash.com/photo-1434389678369-184bf0e54a17?auto=format&fit=crop&w=800&q=80" },
+            { id: 5, name: "Tailored Trousers", price: 145, category: "men", img: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=800&q=80" },
+            { id: 6, name: "Leather Tote Bag", price: 280, category: "accessories", img: "https://images.unsplash.com/photo-1584917033904-493bb3c3e150?auto=format&fit=crop&w=800&q=80" },
+            { id: 7, name: "Minimalist Watch", price: 199, category: "accessories", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80" },
+            { id: 8, name: "Suede Chelsea Boots", price: 240, category: "men", img: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?auto=format&fit=crop&w=800&q=80" }
         ];
 
         let cart = [];
 
-        // --- Core Functions ---
-        function initProducts(filter = 'all') {
+        // --- 2. View Management ---
+        function renderStore(filter = 'all') {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
             
@@ -254,225 +218,215 @@
             
             filtered.forEach(p => {
                 grid.innerHTML += `
-                    <div class="product-card group cursor-pointer" onclick="addToCart(${p.id})">
-                        <div class="relative overflow-hidden rounded-3xl bg-gray-100 aspect-[3/4] mb-4">
-                            <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover">
-                            <div class="absolute bottom-4 right-4 translate-y-12 group-hover:translate-y-0 transition-transform">
-                                <button class="bg-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center hover:bg-black hover:text-white transition-colors">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
+                    <div class="flex flex-col group">
+                        <div class="product-image-container relative overflow-hidden rounded-3xl bg-white aspect-[3/4] mb-4">
+                            <img src="${p.img}" class="w-full h-full object-cover transition-transform duration-700">
                         </div>
-                        <h3 class="font-semibold text-lg">${p.name}</h3>
-                        <p class="text-gray-500 capitalize text-sm mb-1">${p.category}</p>
-                        <p class="font-bold">$${p.price}</p>
+                        <div class="flex-grow space-y-1">
+                            <h3 class="font-bold text-lg">${p.name}</h3>
+                            <p class="text-gray-500 capitalize text-sm">${p.category}</p>
+                            <p class="font-semibold text-lg">$${p.price}</p>
+                        </div>
+                        <button onclick="addToBag(${p.id}, this)" class="mt-4 w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 group-active:scale-95">
+                            <i class="fa-solid fa-plus text-xs"></i> Add to Bag
+                        </button>
                     </div>
                 `;
             });
-
-            document.getElementById('category-title').innerText = 
-                filter === 'all' ? 'A New Era of Style.' : 
-                filter === 'men' ? 'Men\'s Essentials.' : 
-                filter === 'women' ? 'The Women\'s Edit.' : 'Refined Details.';
+            
+            document.getElementById('page-title').innerText = filter === 'all' ? 'Latest Arrivals.' : 
+                (filter.charAt(0).toUpperCase() + filter.slice(1)) + "'s Collection.";
         }
 
-        function filterCategory(cat) {
-            initProducts(cat);
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        function filterBy(cat) {
+            hideCheckout();
+            renderStore(cat);
+            window.scrollTo({top:0, behavior:'smooth'});
         }
 
-        // --- Cart Engine ---
-        function toggleCart(show) {
-            const sidebar = document.getElementById('cart-sidebar');
-            const overlay = document.getElementById('cart-overlay');
-            if(show) {
-                sidebar.classList.remove('translate-x-full');
-                overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.add('opacity-100'), 10);
-                document.body.style.overflow = 'hidden';
-            } else {
-                sidebar.classList.add('translate-x-full');
-                overlay.classList.remove('opacity-100');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
-                document.body.style.overflow = '';
-            }
-        }
-
-        function addToCart(id) {
+        // --- 3. Shopping Logic ---
+        function addToBag(id, btn) {
             const item = products.find(p => p.id === id);
             const exists = cart.find(c => c.id === id);
             
             if(exists) {
-                exists.quantity++;
+                exists.qty++;
             } else {
-                cart.push({...item, quantity: 1});
+                cart.push({...item, qty: 1});
             }
+
+            // UI Feedback
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Added';
+            btn.classList.add('bg-green-600');
+            btn.classList.add('btn-pop');
+            
+            showToast(`${item.name} added to bag`);
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Add to Bag';
+                btn.classList.remove('bg-green-600', 'btn-pop');
+            }, 1000);
+
             updateCartUI();
-            toggleCart(true);
         }
 
         function updateCartUI() {
-            const container = document.getElementById('cart-items');
-            const countBadge = document.getElementById('cart-count');
-            const totalDisplay = document.getElementById('cart-total');
+            const container = document.getElementById('cart-content');
+            const badge = document.getElementById('cart-badge');
+            const totalDisplay = document.getElementById('cart-total-display');
             
             container.innerHTML = '';
             let total = 0;
             let count = 0;
 
             if(cart.length === 0) {
-                document.getElementById('empty-cart').classList.remove('hidden');
-                countBadge.classList.add('hidden');
+                container.innerHTML = '<div class="text-center py-20 text-gray-400 font-medium"><i class="fa-solid fa-bag-shopping text-4xl mb-4 block"></i>Your bag is empty.</div>';
+                badge.classList.add('hidden');
             } else {
-                document.getElementById('empty-cart').classList.add('hidden');
-                countBadge.classList.remove('hidden');
-
+                badge.classList.remove('hidden');
                 cart.forEach((item, index) => {
-                    total += item.price * item.quantity;
-                    count += item.quantity;
+                    total += item.price * item.qty;
+                    count += item.qty;
                     container.innerHTML += `
-                        <div class="flex gap-4 items-center">
-                            <img src="${item.img}" class="w-20 h-24 object-cover rounded-xl bg-gray-100">
+                        <div class="flex gap-4 items-center animate-fade-in">
+                            <img src="${item.img}" class="w-24 h-28 object-cover rounded-2xl">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-sm">${item.name}</h4>
-                                <p class="text-gray-400 text-xs">$${item.price}</p>
-                                <div class="flex items-center gap-3 mt-2">
-                                    <button onclick="updateQty(${index}, -1)" class="w-6 h-6 border rounded-full flex items-center justify-center text-xs">-</button>
-                                    <span class="text-sm font-medium">${item.quantity}</span>
-                                    <button onclick="updateQty(${index}, 1)" class="w-6 h-6 border rounded-full flex items-center justify-center text-xs">+</button>
+                                <h4 class="font-bold">${item.name}</h4>
+                                <p class="text-gray-500 text-sm mb-2">$${item.price}</p>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center border rounded-lg bg-gray-50">
+                                        <button onclick="updateQty(${index}, -1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-l-lg">-</button>
+                                        <span class="px-2 font-bold text-sm">${item.qty}</span>
+                                        <button onclick="updateQty(${index}, 1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-r-lg">+</button>
+                                    </div>
+                                    <button onclick="removeItem(${index})" class="text-xs font-bold text-red-500 hover:underline">Remove</button>
                                 </div>
                             </div>
-                            <button onclick="removeItem(${index})" class="text-gray-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     `;
                 });
             }
 
-            countBadge.innerText = count;
-            totalDisplay.innerText = `$${total}.00`;
+            badge.innerText = count;
+            totalDisplay.innerText = `$${total.toFixed(2)}`;
+            
+            // Update Summary if in checkout
+            updateSummary(total);
         }
 
-        function updateQty(index, delta) {
-            cart[index].quantity += delta;
-            if(cart[index].quantity < 1) removeItem(index);
+        function updateQty(idx, delta) {
+            cart[idx].qty += delta;
+            if(cart[idx].qty < 1) removeItem(idx);
             else updateCartUI();
         }
 
-        function removeItem(index) {
-            cart.splice(index, 1);
+        function removeItem(idx) {
+            cart.splice(idx, 1);
             updateCartUI();
         }
 
-        // --- Checkout Flow ---
-        function showCheckout() {
-            if(cart.length === 0) return;
-            toggleCart(false);
-            const modal = document.getElementById('checkout-modal');
-            const list = document.getElementById('checkout-list');
-            let total = 0;
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            const isHidden = drawer.classList.contains('translate-x-full');
 
+            if(isHidden) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // --- 4. Checkout Logic ---
+        function showCheckout() {
+            if(cart.length === 0) { showToast("Your bag is empty"); return; }
+            toggleCart();
+            document.getElementById('store-view').classList.add('hidden');
+            document.getElementById('checkout-view').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function hideCheckout() {
+            document.getElementById('checkout-view').classList.add('hidden');
+            document.getElementById('store-view').classList.remove('hidden');
+        }
+
+        function updateSummary(subtotal) {
+            const list = document.getElementById('summary-items');
             list.innerHTML = '';
+            
             cart.forEach(item => {
-                total += item.price * item.quantity;
                 list.innerHTML += `
                     <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">${item.quantity}x ${item.name}</span>
-                        <span class="font-bold">$${item.price * item.quantity}</span>
+                        <span class="text-gray-600">${item.qty}x ${item.name}</span>
+                        <span class="font-medium">$${(item.price * item.qty).toFixed(2)}</span>
                     </div>
                 `;
             });
 
-            document.getElementById('final-price').innerText = `$${total}.00`;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+
+            document.getElementById('sum-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('sum-tax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('sum-total').innerText = `$${total.toFixed(2)}`;
         }
 
-        function closeCheckout() {
-            document.getElementById('checkout-modal').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        function processPayment() {
-            const toast = document.getElementById('success-toast');
-            closeCheckout();
+        function confirmOrder() {
+            alert("This is a demo. Your order has been placed in our simulation database! Thank you.");
             cart = [];
             updateCartUI();
-            
-            toast.classList.remove('opacity-0');
-            toast.classList.add('top-24', 'opacity-100');
-            
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                toast.classList.remove('top-24', 'opacity-100');
-            }, 3000);
+            hideCheckout();
         }
 
-        // --- Chatbot Assistant ---
+        // --- 5. Utilities & Chat ---
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.opacity = '1';
+            t.style.top = '80px';
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.top = '20px';
+            }, 2500);
+        }
+
         function toggleChat() {
-            const win = document.getElementById('chat-window');
-            win.classList.toggle('hidden');
-            win.classList.toggle('flex');
-            if(!win.classList.contains('hidden')) {
-                document.getElementById('chat-input').focus();
-            }
+            document.getElementById('chat-win').classList.toggle('hidden');
+            document.getElementById('chat-win').classList.toggle('flex');
         }
 
-        function handleChatEnter(e) {
-            if(e.key === 'Enter') sendMessage();
-        }
-
-        function sendMessage() {
+        function sendChat() {
             const input = document.getElementById('chat-input');
-            const box = document.getElementById('chat-messages');
-            if(!input.value.trim()) return;
+            const val = input.value.trim();
+            if(!val) return;
 
-            // User Message
-            box.innerHTML += `
-                <div class="flex justify-end">
-                    <div class="bg-black text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[80%] text-sm">
-                        ${input.value}
-                    </div>
-                </div>
-            `;
-
-            const query = input.value.toLowerCase();
+            const msgs = document.getElementById('chat-msgs');
+            msgs.innerHTML += `<div class="bg-black text-white p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%] border border-black shadow-sm">${val}</div>`;
             input.value = '';
-            box.scrollTop = box.scrollHeight;
+            msgs.scrollTop = msgs.scrollHeight;
 
-            // Bot Thinking
+            // Simple Logic
             setTimeout(() => {
-                const botMsgId = 'bot-' + Date.now();
-                box.innerHTML += `
-                    <div id="${botMsgId}" class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] text-sm flex gap-1 items-center">
-                        <span class="typing-dot bg-gray-400 w-1 h-1 rounded-full"></span>
-                        <span class="typing-dot bg-gray-400 w-1 h-1 rounded-full" style="animation-delay: 0.2s"></span>
-                        <span class="typing-dot bg-gray-400 w-1 h-1 rounded-full" style="animation-delay: 0.4s"></span>
-                    </div>
-                `;
-                box.scrollTop = box.scrollHeight;
+                msgs.innerHTML += `<div id="typing" class="bg-white p-3 rounded-2xl rounded-tl-none mr-auto max-w-[85%] border border-gray-100 shadow-sm flex gap-1"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+                msgs.scrollTop = msgs.scrollHeight;
 
                 setTimeout(() => {
-                    document.getElementById(botMsgId).remove();
-                    let response = "I'm not sure about that. Would you like to speak to a human stylist?";
+                    document.getElementById('typing').remove();
+                    let reply = "I'm a system assistant. You can ask me about shipping (global), returns (30 days), or sizing.";
+                    if(val.toLowerCase().includes('ship')) reply = "We offer free global express shipping for all AURA orders.";
+                    if(val.toLowerCase().includes('return')) reply = "Return anything within 30 days of delivery. Free labels included.";
                     
-                    if(query.includes('shipping')) response = "We offer free standard shipping on all orders globally. Express shipping (2 days) is available for $15.";
-                    if(query.includes('return')) response = "You can return any unworn item within 30 days. We provide a pre-paid shipping label!";
-                    if(query.includes('size')) response = "Our items generally fit true to size. You can check the 'Size Guide' on any product page for specific measurements.";
-                    if(query.includes('hello') || query.includes('hi')) response = "Hello! I'm your Aura Assistant. How can I help you shop today?";
-                    if(query.includes('discount')) response = "Use code AURA10 at checkout for 10% off your first order!";
-
-                    box.innerHTML += `
-                        <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] text-sm">
-                            ${response}
-                        </div>
-                    `;
-                    box.scrollTop = box.scrollHeight;
+                    msgs.innerHTML += `<div class="bg-white p-3 rounded-2xl rounded-tl-none mr-auto max-w-[85%] border border-gray-100 shadow-sm">${reply}</div>`;
+                    msgs.scrollTop = msgs.scrollHeight;
                 }, 1000);
-            }, 500);
+            }, 400);
         }
 
-        // --- Init ---
-        initProducts();
+        // Init
+        renderStore();
     </script>
 </body>
 </html>
